@@ -65,16 +65,16 @@ else:
 
 
 # Data Frame para usar caso utilize apenas o filtro de genero
-if all_gender or (not filter_male and not filter_female):
-    df_gender = df
-else:
-    selected_gender = []
-    if filter_male:
-        selected_gender.append("Male")
-    if filter_female:
-        selected_gender.append("Female")
+# if all_gender or (not filter_male and not filter_female):
+#     df_gender = df
+# else:
+#     selected_gender = []
+#     if filter_male:
+#         selected_gender.append("Male")
+#     if filter_female:
+#         selected_gender.append("Female")
 
-    df_gender = df[df["Gender"].isin(selected_gender)]
+#     df_gender = df[df["Gender"].isin(selected_gender)]
 
 
 #filtro por tipo da carroceria
@@ -87,7 +87,22 @@ filter_suv = st.sidebar.checkbox("SUV", value=all_body, disabled=all_body)
 filter_hardtop = st.sidebar.checkbox("Hardtop", value=all_body, disabled=all_body)
 filter_passenger = st.sidebar.checkbox("Passenger", value=all_body, disabled=all_body)
 
-
+if all_body or (not filter_sedan and not filter_hatchback and not filter_suv and not filter_hardtop and not filter_passenger):
+    df_filtered = df_filtered
+else:
+    selected_body = []
+    if filter_sedan:
+        selected_body.append("Sedan")
+    if filter_hatchback:
+        selected_body.append("Hatchback")
+    if filter_suv:
+        selected_body.append("SUV")
+    if filter_hardtop:
+        selected_body.append("Hardtop")   
+    if filter_passenger:
+        selected_body.append("Passenger")
+    
+    df_filtered = df_filtered[df_filtered["Body Style"].isin(selected_body)]
 
 df_filtered
 
