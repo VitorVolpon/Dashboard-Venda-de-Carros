@@ -4,8 +4,8 @@ import plotly.express as px
 
 st.set_page_config(layout="wide")
 
-# Mostrar qual mês teve o maior número de vendas
-# um gráfico de linhas com o total de vendas em cada mes
+# Mostrar qual mês teve o maior número de vendas 
+# um gráfico de linhas com o total de vendas em cada mes FEITO
 # gráfico de barras horizontal com os modelos de cara marca e qual vendeu mais (maior ao menor)
 # Filtros de ano, tipos de carro, tipo de cambio, genero, cor (com opção de All)
 # talvez um de pizza por porcentagem de cor de carros mais vendidas
@@ -29,12 +29,10 @@ df["Month"] = df["Date"].apply(lambda x : str(x.year) + "-" + str(x.month))
 df["Year"] = df["Date"].dt.year
 # COM CHECKBOX
 # Criar checkboxes para filtragem por ano
-st.sidebar.header("Filtrar por Ano:")
-filter_all = st.sidebar.checkbox("All", value=True)  # Começa marcado
+st.sidebar.header("Ano")
+filter_all = st.sidebar.checkbox("All", key="year", value=True)  # Começa marcado
 filter_2022 = st.sidebar.checkbox("2022", value=filter_all, disabled=filter_all)
 filter_2023 = st.sidebar.checkbox("2023", value=filter_all, disabled=filter_all)
-
-
 # Aplicar o filtro no dataframe com base na seleção dos checkboxes
 if filter_all or (not filter_2022 and not filter_2023):  
     df_filtered = df
@@ -46,6 +44,50 @@ else:
         selected_years.append(2023)
     
     df_filtered = df[df["Year"].isin(selected_years)]
+
+# Filtro por genero
+st.sidebar.header("Gênero")
+all_gender = st.sidebar.checkbox("All", key="gender", value=True)
+filter_male = st.sidebar.checkbox("Homem", value=all_gender, disabled=all_gender)
+filter_female = st.sidebar.checkbox("Mulher", value=all_gender, disabled=all_gender)
+
+
+if all_gender or (not filter_male and not filter_female):
+    df_filtered = df_filtered
+else:
+    selected_gender = []
+    if filter_male:
+        selected_gender.append("Male")
+    if filter_female:
+        selected_gender.append("Female")
+
+    df_filtered = df_filtered[df_filtered["Gender"].isin(selected_gender)]
+
+
+# Data Frame para usar caso utilize apenas o filtro de genero
+if all_gender or (not filter_male and not filter_female):
+    df_gender = df
+else:
+    selected_gender = []
+    if filter_male:
+        selected_gender.append("Male")
+    if filter_female:
+        selected_gender.append("Female")
+
+    df_gender = df[df["Gender"].isin(selected_gender)]
+
+
+#filtro por tipo da carroceria
+# hatchback, sedan, suv, hardtop, passenger.
+st.sidebar.header("Carroceria")
+all_body = st.sidebar.checkbox("All",key="body style", value=True)
+filter_sedan = st.sidebar.checkbox("Sedan", value=all_body, disabled=all_body)
+filter_hatchback = st.sidebar.checkbox("Hatchback", value=all_body, disabled=all_body)
+filter_suv = st.sidebar.checkbox("SUV", value=all_body, disabled=all_body)
+filter_hardtop = st.sidebar.checkbox("Hardtop", value=all_body, disabled=all_body)
+filter_passenger = st.sidebar.checkbox("Passenger", value=all_body, disabled=all_body)
+
+
 
 df_filtered
 
@@ -66,3 +108,4 @@ car_colors = df.groupby("Color")[["Car_id"]].count().reset_index()
 fig_color = px.pie(car_colors, values="Car_id", names="Color", 
                    title= "Distribuição de Vendas por Cor", color="Color")
 col2.plotly_chart(fig_color, use_container_width=True)
+
