@@ -6,13 +6,17 @@ st.set_page_config(layout="wide")
 
 # Mostrar qual mês teve o maior número de vendas 
 # um gráfico de linhas com o total de vendas em cada mes FEITO
-# gráfico de barras horizontal com os modelos de cara marca e qual vendeu mais (maior ao menor)
-# Filtros de ano, tipos de carro, tipo de cambio, genero, cor (com opção de All)
-# talvez um de pizza por porcentagem de cor de carros mais vendidas
+# gráfico de barras horizontal com os modelos de cada marca e qual vendeu mais (maior ao menor)
+# Filtros de ano, tipos de carro, tipo de cambio, genero(com opção de All)
+# talvez um de pizza por porcentagem de cor de carros mais vendidas FEITO
 # em cima quantidate total de vendas, preço médio de carro, total de vendas em $, e total de carros automatico e manuais(número total e do lado a porcentagem entre os dois)
 
 df = pd.read_csv("car sales.csv")
 
+# Tratamento dos dados
+df = df.drop(columns=["Customer Name", "Dealer_Name", "Phone", "Dealer_No "])
+print(df.isnull().sum())
+print(df.duplicated().sum())
 
 # Vendo o tipo de uma cloluna
 # print(df["Date"].dtype)
@@ -103,6 +107,23 @@ else:
         selected_body.append("Passenger")
     
     df_filtered = df_filtered[df_filtered["Body Style"].isin(selected_body)]
+
+st.sidebar.header("Câmbio")
+all_cambio = st.sidebar.checkbox("All",key="cambio", value=True)
+filter_manual = st.sidebar.checkbox("Manual", value=all_cambio, disabled=all_cambio)
+filter_auto = st.sidebar.checkbox("Automático", value=all_cambio, disabled=all_cambio)
+
+if all_cambio or (not filter_manual and not filter_auto):
+    df_filtered = df_filtered
+else:
+    selected_cambio = []
+    if filter_manual:
+        selected_cambio.append("Manual")
+    if filter_auto:
+        selected_cambio.append("Auto")
+    
+    df_filtered = df_filtered[df_filtered["Transmission"].isin(selected_cambio)]
+
 
 df_filtered
 
