@@ -15,8 +15,8 @@ df = pd.read_csv("car sales.csv")
 
 # Tratamento dos dados
 df = df.drop(columns=["Customer Name", "Dealer_Name", "Phone", "Dealer_No "])
-print(df.isnull().sum())
-print(df.duplicated().sum())
+# print(df.isnull().sum())
+# print(df.duplicated().sum())
 
 # Vendo o tipo de uma cloluna
 # print(df["Date"].dtype)
