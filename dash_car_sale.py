@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import math
 
 st.set_page_config(layout="wide")
 
@@ -127,8 +128,27 @@ else:
 
 df_filtered
 
-col1, col2, col3 = st.columns(3)
-col4, col5 = st.columns(2)
+col1, col2, col3, col4, col5 = st.columns(5)
+col6, col7 ,col8 = st.columns(3)
+col9, col10 = st.columns(2)
+
+sales_t=df["Car_id"].count().sum()
+col1.metric(label="Quantidade de Vendas", value=f"{sales_t:,.0f}", border=True)
+
+media = df["Price ($)"].mean()
+media=round(media)
+col2.metric(label="Preço Médio", value=f"$ {media:,.0f}", border = True)
+
+total = df["Price ($)"].sum()
+total=round(total)
+total_m = math.ceil(total/1_000_000)
+col3.metric(label="Total de Vendas", value=f"$ {total_m:,.0f} M", border=True)
+
+cambio = df["Transmission"].value_counts()
+cambio_porcento = df["Transmission"].value_counts(normalize=True) * 100
+col4.metric(label="Carro Automático", value=f"{cambio['Auto']:,.0f}",delta= f"{cambio_porcento['Auto']:.2f}%" ,delta_color="normal" ,border=True)
+col5.metric(label="Carro Manual", value=f"{cambio['Manual']:,.0f}",delta= f"{cambio_porcento['Manual']:.2f}%" , delta_color="inverse",border=True)
+
 
 month_total = df_filtered.groupby("Month")[["Price ($)"]].sum().reset_index()
 month_total["Month"] = pd.to_datetime(month_total["Month"])
@@ -138,10 +158,13 @@ fig_line = px.line(month_total, x="Month", y="Price ($)"
 fig_line.update_traces(line=dict(color="rgba(255, 0, 0, 0.5)")) 
 fig_line.update_traces(marker=dict(color="rgba(255, 0, 0, 0.5)", size=8))
 fig_line.update_traces(fill="tozeroy", fillcolor="rgba(0, 0, 255, 0.2)") 
-col1.plotly_chart(fig_line, use_container_width=True)
+col6.plotly_chart(fig_line, use_container_width=True)
 
 car_colors = df.groupby("Color")[["Car_id"]].count().reset_index()
 fig_color = px.pie(car_colors, values="Car_id", names="Color", 
                    title= "Distribuição de Vendas por Cor", color="Color")
-col2.plotly_chart(fig_color, use_container_width=True)
+col7.plotly_chart(fig_color, use_container_width=True)
+
+
+print(df["Dealer_Region"].value_counts())
 
