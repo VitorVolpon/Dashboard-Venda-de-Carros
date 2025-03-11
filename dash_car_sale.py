@@ -128,6 +128,20 @@ else:
 
 df_filtered
 
+us_locations = {
+    "Austin": {"lat": 30.2672, "lon": -97.7431},
+    "Janesville": {"lat": 42.6828, "lon": -89.0187},
+    "Scottsdale": {"lat": 33.4942, "lon": -111.9261},
+    "Pasco": {"lat": 46.2396, "lon": -119.1006},
+    "Aurora": {"lat": 39.7294, "lon": -104.8319},
+    "Middletown": {"lat": 39.5151, "lon": -84.3983},
+    "Greenville": {"lat": 34.8526, "lon": -82.3940}
+}
+df_sales = df.groupby("Dealer_Region", as_index=False).agg({"Price ($)": "sum"})
+df_sales["lat"] = df_sales["Dealer_Region"].map(lambda x: us_locations.get(x, {}).get("lat"))
+df_sales["lon"] = df_sales["Dealer_Region"].map(lambda x: us_locations.get(x, {}).get("lon"))
+df_sales = df_sales.dropna()
+
 col1, col2, col3, col4, col5 = st.columns(5)
 col6, col7 ,col8 = st.columns(3)
 col9, col10 = st.columns(2)
@@ -165,6 +179,8 @@ fig_color = px.pie(car_colors, values="Car_id", names="Color",
                    title= "Distribuição de Vendas por Cor", color="Color")
 col7.plotly_chart(fig_color, use_container_width=True)
 
-
-print(df["Dealer_Region"].value_counts())
+fig_sales = px.scatter_geo(df_sales, lat="lat", lon="lon", size="Price ($)",
+                            text="Price ($)", scope="usa",
+                            title="Total de Vendas por Região",projection="albers usa")
+col8.plotly_chart(fig_sales, use_container_width=True)
 
