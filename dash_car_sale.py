@@ -141,6 +141,7 @@ df_sales = df.groupby("Dealer_Region", as_index=False).agg({"Price ($)": "sum"})
 df_sales["lat"] = df_sales["Dealer_Region"].map(lambda x: us_locations.get(x, {}).get("lat"))
 df_sales["lon"] = df_sales["Dealer_Region"].map(lambda x: us_locations.get(x, {}).get("lon"))
 df_sales = df_sales.dropna()
+df_sales["formatted_price"] = df_sales["Price ($)"].apply(lambda x: f"${x/1_000_000:.1f}M" if x >= 1_000_000 else f"${x}")
 
 col1, col2, col3, col4, col5 = st.columns(5)
 col6, col7 ,col8 = st.columns(3)
@@ -179,8 +180,21 @@ fig_color = px.pie(car_colors, values="Car_id", names="Color",
                    title= "Distribuição de Vendas por Cor", color="Color")
 col7.plotly_chart(fig_color, use_container_width=True)
 
-fig_sales = px.scatter_geo(df_sales, lat="lat", lon="lon", size="Price ($)",
-                            text="Price ($)", scope="usa",
-                            title="Total de Vendas por Região",projection="albers usa")
-col8.plotly_chart(fig_sales, use_container_width=True)
 
+fig_sales = px.scatter_geo(df_sales, lat="lat", lon="lon", size="Price ($)",
+                            text="formatted_price", scope="usa",
+                            title="Total de Vendas por Região",projection="albers usa",
+                            height=700, size_max=70)
+fig_sales.update_traces(textfont=dict(size=16, color="black"))
+col10.plotly_chart(fig_sales, use_container_width=True)
+
+df_grouped = df.groupby(['Company', 'Model'], as_index=False)['Price ($)'].sum()
+fig = px.bar(df_grouped, 
+             x='Price ($)', 
+             y='Company', 
+             color='Model', 
+             orientation='h',
+             title='Preços dos Carros por Marca e Modelo',
+             labels={'Price ($)': 'Preço ($)', 'Company': 'Marca', 'Model': 'Modelo'},
+             height=700)             
+col9.plotly_chart(fig, use_container_width=True)
