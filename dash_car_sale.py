@@ -126,7 +126,7 @@ else:
     df_filtered = df_filtered[df_filtered["Transmission"].isin(selected_cambio)]
 
 
-df_filtered
+# df_filtered
 
 us_locations = {
     "Austin": {"lat": 30.2672, "lon": -97.7431},
@@ -180,21 +180,25 @@ fig_color = px.pie(car_colors, values="Car_id", names="Color",
                    title= "Distribuição de Vendas por Cor", color="Color")
 col7.plotly_chart(fig_color, use_container_width=True)
 
-
-fig_sales = px.scatter_geo(df_sales, lat="lat", lon="lon", size="Price ($)",
-                            text="formatted_price", scope="usa",
-                            title="Total de Vendas por Região",projection="albers usa",
-                            height=700, size_max=70)
-fig_sales.update_traces(textfont=dict(size=16, color="black"))
-col10.plotly_chart(fig_sales, use_container_width=True)
+caroc_regi = df.groupby(["Dealer_Region", "Body Style"]).size().reset_index(name="Count")
+fig_regi = px.bar(caroc_regi, x="Dealer_Region", y="Count", color="Body Style",
+                  title="Distribuição de Carrocerias por Região", labels={"Count": "Número de Carros", "Dealer_Region": "Região"})
+col8.plotly_chart(fig_regi, use_container_width=True)
 
 df_grouped = df.groupby(['Company', 'Model'], as_index=False)['Price ($)'].sum()
-fig = px.bar(df_grouped, 
+fig_model = px.bar(df_grouped, 
              x='Price ($)', 
              y='Company', 
              color='Model', 
              orientation='h',
              title='Preços dos Carros por Marca e Modelo',
              labels={'Price ($)': 'Preço ($)', 'Company': 'Marca', 'Model': 'Modelo'},
-             height=700)             
-col9.plotly_chart(fig, use_container_width=True)
+             height=600)             
+col9.plotly_chart(fig_model, use_container_width=True)
+
+fig_sales = px.scatter_geo(df_sales, lat="lat", lon="lon", size="Price ($)",
+                            text="formatted_price", scope="usa",
+                            title="Total de Vendas por Região",projection="albers usa",
+                            height=600, size_max=70)
+fig_sales.update_traces(textfont=dict(size=16, color="black"))
+col10.plotly_chart(fig_sales, use_container_width=True)
