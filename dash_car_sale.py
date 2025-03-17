@@ -126,7 +126,22 @@ else:
     df_filtered = df_filtered[df_filtered["Transmission"].isin(selected_cambio)]
 
 
-df_filtered
+# df_filtered
+
+us_locations = {
+    "Austin": {"lat": 30.2672, "lon": -97.7431},
+    "Janesville": {"lat": 42.6828, "lon": -89.0187},
+    "Scottsdale": {"lat": 33.4942, "lon": -111.9261},
+    "Pasco": {"lat": 46.2396, "lon": -119.1006},
+    "Aurora": {"lat": 39.7294, "lon": -104.8319},
+    "Middletown": {"lat": 39.5151, "lon": -84.3983},
+    "Greenville": {"lat": 34.8526, "lon": -82.3940}
+}
+df_sales = df.groupby("Dealer_Region", as_index=False).agg({"Price ($)": "sum"})
+df_sales["lat"] = df_sales["Dealer_Region"].map(lambda x: us_locations.get(x, {}).get("lat"))
+df_sales["lon"] = df_sales["Dealer_Region"].map(lambda x: us_locations.get(x, {}).get("lon"))
+df_sales = df_sales.dropna()
+df_sales["formatted_price"] = df_sales["Price ($)"].apply(lambda x: f"${x/1_000_000:.1f}M" if x >= 1_000_000 else f"${x}")
 
 col1, col2, col3, col4, col5 = st.columns(5)
 col6, col7 ,col8 = st.columns(3)
@@ -165,6 +180,25 @@ fig_color = px.pie(car_colors, values="Car_id", names="Color",
                    title= "Distribuição de Vendas por Cor", color="Color")
 col7.plotly_chart(fig_color, use_container_width=True)
 
+caroc_regi = df.groupby(["Dealer_Region", "Body Style"]).size().reset_index(name="Count")
+fig_regi = px.bar(caroc_regi, x="Dealer_Region", y="Count", color="Body Style",
+                  title="Distribuição de Carrocerias por Região", labels={"Count": "Número de Carros", "Dealer_Region": "Região"})
+col8.plotly_chart(fig_regi, use_container_width=True)
 
-print(df["Dealer_Region"].value_counts())
+df_grouped = df_filtered.groupby(['Company'], as_index=False)['Price ($)'].sum()
+fig_model = px.bar(df_grouped, 
+             x='Price ($)', 
+             y='Company', 
+             color='Company', 
+             orientation='h',
+             title='Preços Total de Venda dos Carros por Marca ',
+             labels={'Price ($)': 'Preço ($)', 'Company': 'Marca', 'Model': 'Modelo'},
+             height=600)             
+col9.plotly_chart(fig_model, use_container_width=True)
 
+fig_sales = px.scatter_geo(df_sales, lat="lat", lon="lon", size="Price ($)",
+                            text="formatted_price", scope="usa",
+                            title="Total de Vendas por Região",projection="albers usa",
+                            height=600, size_max=50)
+fig_sales.update_traces(textfont=dict(size=16, color="black"))
+col10.plotly_chart(fig_sales, use_container_width=True)
